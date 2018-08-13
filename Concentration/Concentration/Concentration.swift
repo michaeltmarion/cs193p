@@ -12,6 +12,9 @@ class Concentration {
     
     var cards = [Card]()
     
+    // An optional value.
+    var indexOfOneAndOnlyFaceUpCard: Int?
+    
     /**
      * Non-default initializer. Note: all classes in Swift
      * have a default init with no arguments.
@@ -32,6 +35,7 @@ class Concentration {
             // instances, not two copies of the same struct.
             cards += [card, card]
         }
+        //TODO: Shuffle the cards
     }
     
     /**
@@ -39,6 +43,28 @@ class Concentration {
      * been chosen by a player.
      */
     func chooseCard(at index: Int) {
-        cards[index].isFaceUp = !cards[index].isFaceUp
+        // Ignore matched cards.
+        if !cards[index].isMatched {
+            if let matchIndex = indexOfOneAndOnlyFaceUpCard, matchIndex != index {
+                /* Before touch, only one card was face up. We need to check if the
+                 * just-tapped card matches the face-up card. */
+                if cards[matchIndex].identifier == cards[index].identifier {
+                    // The cards match!
+                    cards[matchIndex].isMatched = true
+                    cards[index].isMatched = true
+                }
+                cards[index].isFaceUp = true
+                indexOfOneAndOnlyFaceUpCard = nil
+            } else {
+                // Either no cards or two cards are face-up with no match.
+                for flipDownIndex in cards.indices {
+                    // Turn all cards face-down.
+                    cards[flipDownIndex].isFaceUp = false
+                }
+                // Turn up only the card that was tapped.
+                cards[index].isFaceUp = true
+                indexOfOneAndOnlyFaceUpCard = index
+            }
+        }
     }
 }
