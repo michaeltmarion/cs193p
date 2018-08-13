@@ -10,8 +10,18 @@ import UIKit
 
 class ViewController: UIViewController {
     
+    /* A lazy variable. Lazy variables in Swift prevent compilation errors: objects in
+     * Swift must be 100% initialized before accessing any of its members. Lazy vars
+     * are not initialized until they are accessed.
+     *
+     * Lazy variables cannot, by definition,have property observers. */
+    lazy var game = Concentration(numberOfCardPairs: (cardButtons.count + 1) / 2)
+    
     // The set of emoji characters to display on the cards.
-    var emojiChoices: [String] = ["😄", "😜", "😄", "😜"]
+    var emojiChoices: [String] = ["😄", "😜", "😎", "😍", "🤬",  "😱", "😶",  "🤑", "😂"]
+    
+    /* A dictionary, or hashtable, mapping indices to emoji choices. */
+    var emoji = [Int:String]()
     
     // Tracks the number of total flip attempts.
     var flipCount = 0  {
@@ -19,9 +29,7 @@ class ViewController: UIViewController {
          * It allows for the definition of actions
          * when this property's state changes.
          */
-        didSet {
-            flipCountLabel.text = "\(flipCount)"
-        }
+        didSet { flipCountLabel.text = "\(flipCount)" }
     }
 
     /**
@@ -74,30 +82,50 @@ class ViewController: UIViewController {
          * to define behaviors based on presence, like so.
          */
         if let cardNumber = cardButtons.index(of: sender) {
-            /* Flip the card, using the card's index to step into
-             * emojiChoices and retrieve the proper emoji to
-             * display on it.
-             */
-            flipCard(withEmoji: emojiChoices[cardNumber], on: sender)
+            game.chooseCard(at: cardNumber)
+            updateViewFromModel()
         } else {
             print("Error: card not found in cardButtons!")
         }
     }
-
+    
     /**
-     * Flip a card.
-     *
-     * Again, note the use of both internal and external
-     * names for the function arguments.
+     * Respond to state changes in the model and update the view accordingly.
      */
-    func flipCard(withEmoji emoji: String, on button: UIButton) {
-        if button.currentTitle == emoji {
-            button.setTitle("", for: UIControlState.normal)
-            button.backgroundColor = #colorLiteral(red: 0.2549019754, green: 0.2745098174, blue: 0.3019607961, alpha: 1)
-        } else {
-            button.setTitle(emoji, for: UIControlState.normal)
-            button.backgroundColor = #colorLiteral(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)
+    func updateViewFromModel() {
+        for index in cardButtons.indices {
+            let button = cardButtons[index]
+            let card = game.cards[index]
+            if card.isFaceUp {
+                button.setTitle(emoji(for: card), for: UIControlState.normal)
+                button.backgroundColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
+            } else {
+                button.setTitle("", for: UIControlState.normal)
+                button.backgroundColor = card.isMatched ? #colorLiteral(red: 1, green: 1, blue: 1, alpha: 0) : #colorLiteral(red: 0.2549019754, green: 0.2745098174, blue: 0.3019607961, alpha: 1)
+            }
         }
+    }
+    
+    /**
+     * Choose the emoji from our emoji dictionary that matches
+     * the index on the card.
+     */
+    func emoji(for card: Card) -> String {
+        // Comma-based synax here is sugar for nested if statements.
+        if emoji[card.identifier] == nil, emojiChoices.count > 0 {
+            /* A pseudorandom number generator, bounded to the range between 0 and
+             * the size of our emoji dictionary.
+             *
+             * In addition: Swfit, while good at type inference, never automatically
+             * converts between types. We also need to convert a UInt32 into an Int.
+             * Thankfully, UInt32 offers an initializer with an Int argument. */
+            let randomIndex = Int(arc4random_uniform(UInt32(emojiChoices.count)))
+            // Remove (and return) the emoji from our set of choices to avoid collisions with
+            // emoji-identifier pairs.
+            emoji[card.identifier] = emojiChoices.remove(at: randomIndex)
+        }
+        // The ?? is a special operator to perform a nil-check in a single line.
+        return emoji[card.identifier] ?? "?"
     }
     
 }
