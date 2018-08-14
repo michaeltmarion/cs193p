@@ -46,8 +46,8 @@ struct Card {
      * tied to class type, not instance.
      */
     static func getUniqueIdentifier() -> Int {
-         /* Within static scope, you can access static vars and methods without
-          * type invocation. */
+        /* Within static scope, you can access static vars and methods without
+         * type invocation. */
         identifierFactory += 1
         return Card.identifierFactory
     }

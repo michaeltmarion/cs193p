@@ -12,6 +12,9 @@ class Concentration {
     
     var cards = [Card]()
     
+    var flipCount = 0;
+    var score = 0;
+    
     // An optional value.
     var indexOfOneAndOnlyFaceUpCard: Int?
     
@@ -20,6 +23,16 @@ class Concentration {
      * have a default init with no arguments.
      */
     init(numberOfCardPairs: Int) {
+        startNewGame(numberOfCardPairs: numberOfCardPairs)
+    }
+    
+    /**
+     * Start a new game of Concentration. Reset the existing
+     * array of cards and re-initialize it.
+     */
+    func startNewGame(numberOfCardPairs: Int) {
+        flipCount = 0; score = 0
+        cards.removeAll()
         /* The 1...val syntax is syntactic sugar for creating a CountableRange.
          *
          * For loops in swift allow for iteration through any sequence,
@@ -35,7 +48,8 @@ class Concentration {
             // instances, not two copies of the same struct.
             cards += [card, card]
         }
-        //TODO: Shuffle the cards
+        // Shuffle the cards.
+        cards.shuffle()
     }
     
     /**
@@ -45,6 +59,11 @@ class Concentration {
     func chooseCard(at index: Int) {
         // Ignore matched cards.
         if !cards[index].isMatched {
+            /* Increment the flip count only
+             * if the tapped card was face-down. */
+            if !cards[index].isFaceUp {
+                flipCount += 1
+            }
             if let matchIndex = indexOfOneAndOnlyFaceUpCard, matchIndex != index {
                 /* Before touch, only one card was face up. We need to check if the
                  * just-tapped card matches the face-up card. */
@@ -52,6 +71,10 @@ class Concentration {
                     // The cards match!
                     cards[matchIndex].isMatched = true
                     cards[index].isMatched = true
+                    score += 2
+                } else {
+                    // The cards do not match.
+                    score -= 1
                 }
                 cards[index].isFaceUp = true
                 indexOfOneAndOnlyFaceUpCard = nil
@@ -67,4 +90,5 @@ class Concentration {
             }
         }
     }
+
 }

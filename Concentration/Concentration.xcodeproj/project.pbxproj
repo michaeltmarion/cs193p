@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F934309921225889005F4D8C /* Array.swift in Sources */ = {isa = PBXBuildFile; fileRef = F934309821225889005F4D8C /* Array.swift */; };
 		F95B182D2120E80800D13813 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F95B182C2120E80800D13813 /* AppDelegate.swift */; };
 		F95B182F2120E80800D13813 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F95B182E2120E80800D13813 /* ViewController.swift */; };
 		F95B18322120E80800D13813 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F95B18302120E80800D13813 /* Main.storyboard */; };
@@ -17,6 +18,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		F934309821225889005F4D8C /* Array.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Array.swift; sourceTree = "<group>"; };
 		F95B18292120E80800D13813 /* Concentration.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Concentration.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F95B182C2120E80800D13813 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		F95B182E2120E80800D13813 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -58,6 +60,7 @@
 		F95B182B2120E80800D13813 /* Concentration */ = {
 			isa = PBXGroup;
 			children = (
+				F934309821225889005F4D8C /* Array.swift */,
 				F9A57DCE2120FBAA00463D66 /* Concentration.swift */,
 				F9A57DD02120FC7D00463D66 /* Card.swift */,
 				F95B182C2120E80800D13813 /* AppDelegate.swift */,
@@ -142,6 +145,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F95B182F2120E80800D13813 /* ViewController.swift in Sources */,
+				F934309921225889005F4D8C /* Array.swift in Sources */,
 				F95B182D2120E80800D13813 /* AppDelegate.swift in Sources */,
 				F9A57DCF2120FBAA00463D66 /* Concentration.swift in Sources */,
 				F9A57DD12120FC7D00463D66 /* Card.swift in Sources */,

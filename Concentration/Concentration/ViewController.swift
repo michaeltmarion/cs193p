@@ -15,22 +15,27 @@ class ViewController: UIViewController {
      * are not initialized until they are accessed.
      *
      * Lazy variables cannot, by definition,have property observers. */
-    lazy var game = Concentration(numberOfCardPairs: (cardButtons.count + 1) / 2)
+    lazy var numCards = (cardButtons.count + 1) / 2
     
-    // The set of emoji characters to display on the cards.
-    var emojiChoices: [String] = ["😄", "😜", "😎", "😍", "🤬",  "😱", "😶",  "🤑", "😂"]
+    lazy var game = Concentration(numberOfCardPairs: numCards)
     
-    /* A dictionary, or hashtable, mapping indices to emoji choices. */
+    // The sets of emoji characters to display on the cards.
+    // NOTE: This makes the assumption that all themes have the same number of
+    // emoji in them.
+    lazy var themes: [[String]] = [
+        ["😄", "😜", "😎", "😍", "🤬", "😱", "😶", "🤑", "😂"], // Faces
+        ["🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼", "🐨"], // Animals
+        ["⚽️", "🏀", "🏈", "⚾️", "🎾", "🏐", "🏉", "🎱", "🏓"], // Sports
+        ["🇦🇿", "🇧🇸", "🇧🇭", "🇧🇩", "🇧🇧", "🇧🇾", "🇧🇪", "🇧🇿", "🇧🇯"], // Flags
+        ["👐🏻", "🙌🏻", "👏🏻", "🖖🏻", "🤞🏻", "✌🏻", "🤟🏻", "👍🏻", "✊🏻"], // Handshakes
+        ["☀️", "🌤", "⛅️", "🌥", "🌦", "🌧", "⛈", "🌩", "🌨"]  // Weather
+    ]
+    
+    // The current theme chosen from the list.
+    lazy var selectedTheme = themes[Int(arc4random_uniform(UInt32(themes[0].count)))]
+    
+    // A dictionary, or hashtable, mapping indices to emoji choices.
     var emoji = [Int:String]()
-    
-    // Tracks the number of total flip attempts.
-    var flipCount = 0  {
-        /* This is called a property observer.
-         * It allows for the definition of actions
-         * when this property's state changes.
-         */
-        didSet { flipCountLabel.text = "\(flipCount)" }
-    }
 
     /**
      * This is an IBOutlet; it's an instance variable associated
@@ -44,10 +49,27 @@ class ViewController: UIViewController {
     @IBOutlet weak var flipCountLabel: UILabel!
     
     /**
+     * An outlet to manage the labeing of the score.
+     */
+    @IBOutlet weak var scoreLabel: UILabel!
+    
+    /**
      * This is an Outlet Collection. The syntax below is syntactic sugar
      * for instantiating a variable-length array of type UIBUtton.
      */
     @IBOutlet var cardButtons: [UIButton]!
+    
+    /**
+     * Start a new game.
+     */
+    @IBAction func startNewGame(_ sender: UIButton) {
+        // Retrieve a random theme from our set of themes.
+        selectedTheme = themes[Int(arc4random_uniform(UInt32(themes.count)))]
+        // Start a new game and update the view for the first time.
+        game.startNewGame(numberOfCardPairs: numCards)
+        // Refreshes the view to a newly-initialized state.
+        updateViewFromModel()
+    }
     
     /**
      * An IBAction defining behavior when the given card
@@ -73,7 +95,6 @@ class ViewController: UIViewController {
      * Storyboard.
      */
     @IBAction func touchCard(_ sender: UIButton) {
-        flipCount += 1
         /* Put an exclamation point at the end of the following line
          * to force-retrieve the value wrapped within the Optional
          * returned by Array.index.
@@ -97,12 +118,14 @@ class ViewController: UIViewController {
             let button = cardButtons[index]
             let card = game.cards[index]
             if card.isFaceUp {
-                button.setTitle(emoji(for: card), for: UIControlState.normal)
+                button.setTitle(chooseEmoji(for: card), for: UIControlState.normal)
                 button.backgroundColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
             } else {
                 button.setTitle("", for: UIControlState.normal)
                 button.backgroundColor = card.isMatched ? #colorLiteral(red: 1, green: 1, blue: 1, alpha: 0) : #colorLiteral(red: 0.2549019754, green: 0.2745098174, blue: 0.3019607961, alpha: 1)
             }
+            flipCountLabel.text = "\(game.flipCount)"
+            scoreLabel.text = "\(game.score)"
         }
     }
     
@@ -110,23 +133,25 @@ class ViewController: UIViewController {
      * Choose the emoji from our emoji dictionary that matches
      * the index on the card.
      */
-    func emoji(for card: Card) -> String {
+    func chooseEmoji(for card: Card) -> String {
         // Comma-based synax here is sugar for nested if statements.
-        if emoji[card.identifier] == nil, emojiChoices.count > 0 {
+        if emoji[card.identifier] == nil, selectedTheme.count > 0 {
             /* A pseudorandom number generator, bounded to the range between 0 and
              * the size of our emoji dictionary.
              *
              * In addition: Swfit, while good at type inference, never automatically
              * converts between types. We also need to convert a UInt32 into an Int.
              * Thankfully, UInt32 offers an initializer with an Int argument. */
-            let randomIndex = Int(arc4random_uniform(UInt32(emojiChoices.count)))
+            let randomIndex = Int(arc4random_uniform(UInt32(selectedTheme.count)))
             // Remove (and return) the emoji from our set of choices to avoid collisions with
             // emoji-identifier pairs.
-            emoji[card.identifier] = emojiChoices.remove(at: randomIndex)
+            emoji[card.identifier] = selectedTheme.remove(at: randomIndex)
         }
         // The ?? is a special operator to perform a nil-check in a single line.
         return emoji[card.identifier] ?? "?"
     }
+    
+    
     
 }
 
